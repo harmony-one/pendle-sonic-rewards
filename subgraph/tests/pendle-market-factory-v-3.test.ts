@@ -5,7 +5,7 @@ import {
   clearStore,
   beforeAll,
   afterAll
-} from "matchstick-as/assembly/index"
+} from "matchstick-as"
 import { Address, BigInt } from "@graphprotocol/graph-ts"
 import { CreateNewMarket } from "../generated/schema"
 import { CreateNewMarket as CreateNewMarketEvent } from "../generated/PendleMarketFactoryV3/PendleMarketFactoryV3"
