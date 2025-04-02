@@ -1,0 +1,38 @@
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PendleMarketFactoryV3
+    network: sonic
+    source:
+      address: "0xfee31a6ec6ebefa0b5a594bf5b1139e3c6faa0fb"
+      abi: PendleMarketFactoryV3
+      startBlock: 7830430
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - CreateNewMarket
+        - Initialized
+        - NewTreasuryAndFeeReserve
+        - OwnershipTransferred
+        - SetOverriddenFee
+      abis:
+        - name: PendleMarketFactoryV3
+          file: ./abis/PendleMarketFactoryV3.json
+      eventHandlers:
+        - event: CreateNewMarket(indexed address,indexed address,int256,int256,uint256)
+          handler: handleCreateNewMarket
+        - event: Initialized(uint8)
+          handler: handleInitialized
+        - event: NewTreasuryAndFeeReserve(indexed address,uint8)
+          handler: handleNewTreasuryAndFeeReserve
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SetOverriddenFee(indexed address,indexed address,uint80)
+          handler: handleSetOverriddenFee
+      file: ./src/pendle-market-factory-v-3.ts

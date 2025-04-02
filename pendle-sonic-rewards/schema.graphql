@@ -1,0 +1,47 @@
+type CreateNewMarket @entity(immutable: true) {
+  id: Bytes!
+  market: Bytes! # address
+  PT: Bytes! # address
+  scalarRoot: BigInt! # int256
+  initialAnchor: BigInt! # int256
+  lnFeeRateRoot: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Initialized @entity(immutable: true) {
+  id: Bytes!
+  version: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewTreasuryAndFeeReserve @entity(immutable: true) {
+  id: Bytes!
+  treasury: Bytes! # address
+  reserveFeePercent: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SetOverriddenFee @entity(immutable: true) {
+  id: Bytes!
+  router: Bytes! # address
+  market: Bytes! # address
+  lnFeeRateRoot: BigInt! # uint80
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
