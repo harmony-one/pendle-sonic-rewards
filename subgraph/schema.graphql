@@ -45,3 +45,23 @@ type SetOverriddenFee @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type Market @entity {
+  id: Bytes!
+  address: Bytes!
+  principalToken: Bytes!  # PT token address
+  createdAt: BigInt!
+  creationTx: Bytes!
+  # Relations
+  redeemRewards: [RedeemRewards!]! @derivedFrom(field: "market")
+}
+
+type RedeemRewards @entity {
+  id: Bytes!
+  user: Bytes!  # address of the user redeeming rewards
+  market: Market!  # reference to the market
+  amounts: [BigInt!]!  # amounts of rewards redeemed
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

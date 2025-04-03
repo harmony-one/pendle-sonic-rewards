@@ -36,3 +36,22 @@ dataSources:
         - event: SetOverriddenFee(indexed address,indexed address,uint80)
           handler: handleSetOverriddenFee
       file: ./src/pendle-market-factory-v-3.ts
+templates:
+  - kind: ethereum
+    name: PendleMarket
+    network: sonic
+    source:
+      abi: PendleMarket
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/pendle-market.ts
+      entities:
+        - RedeemRewards
+      abis:
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
+      eventHandlers:
+        - event: RedeemRewards(indexed address,uint256[])
+          handler: handleRedeemRewards

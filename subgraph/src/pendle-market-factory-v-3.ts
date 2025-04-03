@@ -5,12 +5,14 @@ import {
   OwnershipTransferred as OwnershipTransferredEvent,
   SetOverriddenFee as SetOverriddenFeeEvent
 } from "../generated/PendleMarketFactoryV3/PendleMarketFactoryV3"
+import { PendleMarket } from "../generated/templates"
 import {
   CreateNewMarket,
   Initialized,
   NewTreasuryAndFeeReserve,
   OwnershipTransferred,
-  SetOverriddenFee
+  SetOverriddenFee,
+  Market
 } from "../generated/schema"
 
 export function handleCreateNewMarket(event: CreateNewMarketEvent): void {
@@ -28,6 +30,16 @@ export function handleCreateNewMarket(event: CreateNewMarketEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  let market = new Market(event.params.market)
+  market.address = event.params.market
+  market.principalToken = event.params.PT
+  market.createdAt = event.block.timestamp
+  market.creationTx = event.transaction.hash
+  market.save()
+
+  PendleMarket.create(event.params.market)
+
 }
 
 export function handleInitialized(event: InitializedEvent): void {
