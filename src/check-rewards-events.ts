@@ -7,6 +7,7 @@ const redeemRewardsEventAbi = parseAbiItem(
 );
 
 const RPC_URL = sonic.rpcUrls.default.http[0]
+console.log(RPC_URL)
 // Configure the Sonic client
 const client = createPublicClient({
   chain: sonic,
