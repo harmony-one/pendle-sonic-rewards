@@ -1,0 +1,22 @@
+{
+  "name": "pendle-sonic-rewards",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/harmony-one/pendle-sonic-rewards.git",
+  "author": "fegloff <fegloff@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "check": "tsx src/check-rewards-events.ts",
+    "rewards": "tsx src/get-rewards.ts"
+  },
+  "dependencies": {
+    "@types/node": "^22.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2",
+    "viem": "^2.25.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3"
+  }
+}
