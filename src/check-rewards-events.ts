@@ -1,12 +1,14 @@
 import { createPublicClient, http, parseAbiItem, type Address } from 'viem';
 import { sonic } from 'viem/chains';
+import config from './config';
 
 // Define the ABI for the RedeemRewards event
 const redeemRewardsEventAbi = parseAbiItem(
   'event RedeemRewards(address user, uint256[] rewardsOut)'
 );
 
-const RPC_URL = sonic.rpcUrls.default.http[0]
+const RPC_URL = config.rpcUrl
+
 console.log(RPC_URL)
 // Configure the Sonic client
 const client = createPublicClient({

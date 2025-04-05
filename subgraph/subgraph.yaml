@@ -1,3 +1,4 @@
+# subgraph.yaml
 specVersion: 1.2.0
 indexerHints:
   prune: auto
@@ -10,7 +11,8 @@ dataSources:
     source:
       address: "0xfee31a6ec6ebefa0b5a594bf5b1139e3c6faa0fb"
       abi: PendleMarketFactoryV3
-      startBlock: 18000000
+      startBlock: 7830430
+
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -49,6 +51,7 @@ templates:
       file: ./src/pendle-market.ts
       entities:
         - RedeemRewards
+        - RedeemReward 
       abis:
         - name: PendleMarket
           file: ./abis/PendleMarket.json

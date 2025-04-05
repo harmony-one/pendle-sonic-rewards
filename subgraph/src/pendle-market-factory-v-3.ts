@@ -1,3 +1,4 @@
+// subgraph/src/pendle-market-factory-v-3.ts
 import {
   CreateNewMarket as CreateNewMarketEvent,
   Initialized as InitializedEvent,
@@ -39,7 +40,6 @@ export function handleCreateNewMarket(event: CreateNewMarketEvent): void {
   market.save()
 
   PendleMarket.create(event.params.market)
-
 }
 
 export function handleInitialized(event: InitializedEvent): void {
