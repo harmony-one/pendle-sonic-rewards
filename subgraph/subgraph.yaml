@@ -51,7 +51,7 @@ templates:
       file: ./src/pendle-market.ts
       entities:
         - RedeemRewards
-        - RedeemReward 
+        - RedeemRewardToken 
       abis:
         - name: PendleMarket
           file: ./abis/PendleMarket.json

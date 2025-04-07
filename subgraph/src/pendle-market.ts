@@ -2,7 +2,7 @@
 import {
   RedeemRewards as RedeemRewardsEvent
 } from "../generated/templates/PendleMarket/PendleMarket"
-import { RedeemRewards, RedeemReward, Market } from "../generated/schema"
+import { RedeemRewards, RedeemRewardToken, Market } from "../generated/schema"
 import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 export function handleRedeemRewards(event: RedeemRewardsEvent): void {  
@@ -25,7 +25,7 @@ export function handleRedeemRewards(event: RedeemRewardsEvent): void {
   // Create individual reward entries
   for (let i = 0; i < event.params.rewardsOut.length; i++) {
     let rewardId = id.concat(Bytes.fromI32(i));
-    let reward = new RedeemReward(rewardId);
+    let reward = new RedeemRewardToken(rewardId);
     reward.redeemEvent = id;
     
     // Simply store the index position as the token identifier
