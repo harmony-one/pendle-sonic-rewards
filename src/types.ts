@@ -24,7 +24,7 @@ export interface SubgraphRedeemEvent {
 
 export interface SubgraphResponse {
   data: {
-    redeemRewards_collection: SubgraphRedeemEvent[];
+    redeemRewards: SubgraphRedeemEvent[];
   };
 }
 

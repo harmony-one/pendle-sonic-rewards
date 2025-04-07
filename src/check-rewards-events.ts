@@ -2,9 +2,9 @@ import { createPublicClient, http, parseAbiItem, type Address } from 'viem';
 import { sonic } from 'viem/chains';
 import config from './config';
 
-// Define the ABI for the RedeemRewards event
-const redeemRewardsEventAbi = parseAbiItem(
-  'event RedeemRewards(address user, uint256[] rewardsOut)'
+// Define the ABI for the RedeemReward event
+const RedeemRewardEventAbi = parseAbiItem(
+  'event RedeemReward(address user, uint256[] rewardsOut)'
 );
 
 const RPC_URL = config.rpcUrl
@@ -22,19 +22,19 @@ const marketAddresses: Address[] = [
   // Add more market addresses as needed
 ];
 
-// Function to fetch RedeemRewards events
-async function fetchRedeemRewardsEvents(address: Address) {
+// Function to fetch RedeemReward events
+async function fetchRedeemRewardEvents(address: Address) {
   try {
-    console.log(`Checking for RedeemRewards events from market: ${address}`);
+    console.log(`Checking for RedeemReward events from market: ${address}`);
     
     const logs = await client.getLogs({
       address,
-      event: redeemRewardsEventAbi,
+      event: RedeemRewardEventAbi,
       fromBlock: 'earliest',
       toBlock: 'latest'
     });
     
-    console.log(`Found ${logs.length} RedeemRewards events`);
+    console.log(`Found ${logs.length} RedeemReward events`);
     
     if (logs.length > 0) {
       logs.forEach((log, index) => {
@@ -56,14 +56,14 @@ async function fetchRedeemRewardsEvents(address: Address) {
 
 // Main function to check all markets
 async function checkAllMarkets() {
-  console.log(`Checking ${marketAddresses.length} Pendle markets for RedeemRewards events...`);
+  console.log(`Checking ${marketAddresses.length} Pendle markets for RedeemReward events...`);
   
   const results = await Promise.all(
-    marketAddresses.map(address => fetchRedeemRewardsEvents(address))
+    marketAddresses.map(address => fetchRedeemRewardEvents(address))
   );
   
   const totalEvents = results.reduce((sum, events) => sum + events.length, 0);
-  console.log(`Total RedeemRewards events found across all markets: ${totalEvents}`);
+  console.log(`Total RedeemReward events found across all markets: ${totalEvents}`);
 }
 
 // Execute the script

@@ -53,21 +53,21 @@ type Market @entity {
   principalToken: Bytes!
   createdAt: BigInt!
   creationTx: Bytes!
-  redeemRewards: [RedeemRewards!]! @derivedFrom(field: "market")
+  redeemRewards: [RedeemReward!]! @derivedFrom(field: "market")
 }
 
-type RedeemReward @entity {
+type RedeemRewardToken @entity {
   id: Bytes!
-  redeemEvent: RedeemRewards!
+  redeemEvent: RedeemReward!
   token: Bytes!  # The reward token address
   amount: BigInt!  # The amount redeemed
 }
 
-type RedeemRewards @entity {
+type RedeemReward @entity {
   id: Bytes!
   user: Bytes!
   market: Market!
-  rewards: [RedeemReward!]! @derivedFrom(field: "redeemEvent")
+  rewards: [RedeemRewardToken!]! @derivedFrom(field: "redeemEvent")
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

@@ -50,11 +50,11 @@ templates:
       language: wasm/assemblyscript
       file: ./src/pendle-market.ts
       entities:
-        - RedeemRewards
-        - RedeemReward 
+        - RedeemReward
+        - RedeemRewardToken 
       abis:
         - name: PendleMarket
           file: ./abis/PendleMarket.json
       eventHandlers:
-        - event: RedeemRewards(indexed address,uint256[])
-          handler: handleRedeemRewards
+        - event: RedeemReward(indexed address,uint256[])
+          handler: handleRedeemReward

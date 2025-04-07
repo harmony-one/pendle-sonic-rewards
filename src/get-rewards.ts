@@ -18,7 +18,7 @@ async function getUserRewardRedemptions(userAddress: string): Promise<RedeemEven
     // Fetch data from subgraph
     const query = `
       query GetUserRewards($userAddress: Bytes!) {
-        redeemRewards_collection(
+        redeemRewards(
           where: { user: $userAddress }
           orderBy: blockTimestamp
           orderDirection: desc
@@ -58,7 +58,8 @@ async function getUserRewardRedemptions(userAddress: string): Promise<RedeemEven
     }
     
     const result: SubgraphResponse = await response.json();
-    const redeemEvents = result.data.redeemRewards_collection;
+    console.log('FCO::::::: result, ', result)
+    const redeemEvents = result.data.redeemRewards;
     
     // Enrich the data with contract calls
     const enrichedEvents: RedeemEventInfo[] = [];
