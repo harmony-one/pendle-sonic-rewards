@@ -67,7 +67,7 @@ async function getUserRewardRedemptions(userAddress: string): Promise<RedeemEven
       // Get market info with PT, YT, SY details
       const marketInfo = await getMarketInfo(
         getAddress(event.market.address),
-        getAddress(event.market.principalToken)
+        // getAddress(event.market.principalToken)
       );
       
       // Enrich reward info
@@ -89,13 +89,15 @@ async function getUserRewardRedemptions(userAddress: string): Promise<RedeemEven
           ? rewardTokenAddresses[tokenIndex] 
           : '0x0000000000000000000000000000000000000000';
         const tokenInfo = await getTokenInfo(getAddress(tokenAddress));
-        const amountFormatted = formatTokenAmount(reward.amount, tokenInfo.decimals);
+        if (tokenInfo) {
+          const amountFormatted = formatTokenAmount(reward.amount, tokenInfo.decimals);
         
-        enrichedRewards.push({
-          token: tokenInfo,
-          amount: reward.amount,
-          amountFormatted,
-        });
+          enrichedRewards.push({
+            token: tokenInfo,
+            amount: reward.amount,
+            amountFormatted,
+          });
+        }
       }
       
       enrichedEvents.push({
@@ -176,7 +178,7 @@ async function main() {
     console.log(`Date: ${event.timestamp.toLocaleString()}`);
     console.log('\nMarket Information:');
     console.log(`Market Address: ${event.market.address}`);
-    console.log(`Principal Token: ${event.market.principalToken.symbol} (${event.market.principalToken.address})`);
+    event.market.principalToken && console.log(`Principal Token: ${event.market.principalToken.symbol} (${event.market.principalToken.address})`);
     
     if (event.market.yieldToken) {
       console.log(`Yield Token: ${event.market.yieldToken.symbol} (${event.market.yieldToken.address})`);
@@ -204,11 +206,3 @@ async function main() {
 
 // Run the script
 main().catch(console.error);
-
-// Export functions for external use
-export {
-  getUserRewardRedemptions,
-  getTotalRewardsValue,
-  getMarketInfo,
-  getTokenInfo
-};
