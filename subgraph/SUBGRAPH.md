@@ -31,3 +31,9 @@ Next steps:
 
   3. Run `yarn deploy` to deploy the subgraph.
 ```  
+
+local test:
+ docker-compose up -d
+ graph create --node http://localhost:8020/ pendle-sonic-rewards
+ graph codegen & graph build
+graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 pendle-sonic-rewards

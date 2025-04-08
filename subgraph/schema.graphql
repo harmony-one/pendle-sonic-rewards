@@ -1,3 +1,4 @@
+# schema.graphql
 type CreateNewMarket @entity(immutable: true) {
   id: Bytes!
   market: Bytes! # address
@@ -41,6 +42,32 @@ type SetOverriddenFee @entity(immutable: true) {
   router: Bytes! # address
   market: Bytes! # address
   lnFeeRateRoot: BigInt! # uint80
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Market @entity {
+  id: Bytes!
+  address: Bytes!
+  principalToken: Bytes!
+  createdAt: BigInt!
+  creationTx: Bytes!
+  redeemRewards: [RedeemRewards!]! @derivedFrom(field: "market")
+}
+
+type RedeemRewardToken @entity {
+  id: Bytes!
+  redeemEvent: RedeemRewards!
+  token: Bytes!  # The reward token address
+  amount: BigInt!  # The amount redeemed
+}
+
+type RedeemRewards @entity {
+  id: Bytes!
+  user: Bytes!
+  market: Market!
+  rewards: [RedeemRewardToken!]! @derivedFrom(field: "redeemEvent")
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

@@ -1,3 +1,4 @@
+# subgraph.yaml
 specVersion: 1.2.0
 indexerHints:
   prune: auto
@@ -11,6 +12,7 @@ dataSources:
       address: "0xfee31a6ec6ebefa0b5a594bf5b1139e3c6faa0fb"
       abi: PendleMarketFactoryV3
       startBlock: 7830430
+
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -36,3 +38,23 @@ dataSources:
         - event: SetOverriddenFee(indexed address,indexed address,uint80)
           handler: handleSetOverriddenFee
       file: ./src/pendle-market-factory-v-3.ts
+templates:
+  - kind: ethereum
+    name: PendleMarket
+    network: sonic
+    source:
+      abi: PendleMarket
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/pendle-market.ts
+      entities:
+        - RedeemRewards
+        - RedeemRewardToken 
+      abis:
+        - name: PendleMarket
+          file: ./abis/PendleMarket.json
+      eventHandlers:
+        - event: RedeemRewards(indexed address,uint256[])
+          handler: handleRedeemRewards
