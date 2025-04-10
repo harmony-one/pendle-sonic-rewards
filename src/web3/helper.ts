@@ -1,12 +1,11 @@
 import { Address, getAddress } from "viem";
-import { MarketInfo, TokenInfo } from "../types";
+import { MarketInfo, PortfolioItem, TokenInfo } from "../types";
 import { client } from "./client";
 import ERC20_ABI from './abis/erc20.json'
 import PENDLE_MARKET_ABI from './abis/PendleMarket.json'
 import GAUGE_CONTROLLER_ABI from './abis/GaugeController.json'
 import { getContract } from "viem";
 import config from "../config";
-import coinGeckoService from "./api/coinGecko";
 
 // Cache for token and market information to reduce RPC calls
 const tokenCache = new Map<string, TokenInfo>();
@@ -160,6 +159,136 @@ export async function getGaugeController() {
 }
 
 
+// /**
+//  * Get the current reward rate from the GaugeController
+//  */
+// export async function getCurrentRewardRate(marketAddress: string) {
+//   const gaugeController = await getGaugeController();
+//   const rewardData = await gaugeController.read.rewardData([getAddress(marketAddress)]) as [string, string, string, string];
+  
+//   return {
+//     pendlePerSec: rewardData[0].toString(),
+//     accumulatedPendle: rewardData[1].toString(),
+//     lastUpdated: new Date(Number(rewardData[2]) * 1000),
+//     incentiveEndsAt: new Date(Number(rewardData[3]) * 1000)
+//   };
+// }
+
+
+// /**
+//  * Mock function to get market TVL
+//  * In a production environment, this would call contract methods to calculate actual TVL
+//  */
+// export async function getMarketTVL(marketAddress: string): Promise<number> {
+//   // Mock TVL - in production, you would calculate this based on totalPt, totalSy, and their prices
+//   // This should be implemented using on-chain data
+  
+//   // For demo purposes, return a mock value (in USD)
+//   const mockTVLs: {[key: string]: number} = {
+//     // Add some example market addresses and TVLs
+//     "0x3F5EA53d1160177445B1898afbB16da111182418": 2450000,
+//     "0x6e4e95fab7db1f0524b4b0a05f0b9c96380b7dfa": 1250000,
+//     // Default TVL if the market isn't in our mock data
+//     "default": 1000000
+//   };
+  
+//   const normalizedAddress = marketAddress.toLowerCase();
+//   return mockTVLs[normalizedAddress] || mockTVLs["default"];
+// }
+
+// Add these methods to your existing web3/helpers.ts file
+
+/**
+ * Calculates APR based on deposit amount, rewards, and days elapsed
+ */
+export const calculateAPR = (
+  depositedTotalUSD: number,
+  totalRewardsUSD: number,
+  daysElapsed: number
+) => {
+  if (depositedTotalUSD <= 0 || totalRewardsUSD < 0) {
+    throw new Error("Deposited total must be positive and rewards cannot be negative.");
+  }
+
+  if (daysElapsed <= 0) {
+    throw new Error("End date must be after the pool launch date.");
+  }
+
+  const returnRate = totalRewardsUSD / depositedTotalUSD;
+  const annualizedRate = returnRate * (365 / daysElapsed);
+  const apr = annualizedRate * 100;
+
+  return Number(apr.toFixed(2));
+}
+
+/**
+ * Factory function to create an empty portfolio item
+ */
+export const portfolioItemFactory = (): PortfolioItem => {
+  return {
+    name: '',
+    address: '',
+    depositTime: '',
+    depositAsset0: '',
+    depositAsset1: '',
+    depositAmount0: '',
+    depositAmount1: '',
+    depositValue0: '',
+    depositValue1: '',
+    depositValue: '',
+    rewardAsset0: '',
+    rewardAsset1: '',
+    rewardAmount0: '',
+    rewardAmount1: '',
+    rewardValue0: '',
+    rewardValue1: '',
+    rewardValue: '',
+    totalDays: '',
+    totalBlocks: '',
+    apr: '',
+    type: '',
+    depositLink: ''
+  }
+}
+
+/**
+ * Rounds a number string to a specified number of significant digits
+ */
+export const roundToSignificantDigits = (
+  numStr: string,
+  n = 6
+) => {
+  if (!numStr || isNaN(Number(numStr)) || !Number.isInteger(n) || n <= 0) {
+    throw new Error('Invalid input: numStr must be a valid number string and n must be a positive integer');
+  }
+
+  const num = Number(numStr);
+
+  if (num === 0) {
+    return '0.' + '0'.repeat(n); // Returns "0.000..." with n zeros after decimal
+  }
+
+  const absNum = Math.abs(num);
+  const magnitude = Math.floor(Math.log10(absNum));
+
+  const scale = Math.pow(10, n - magnitude - 1);
+
+  const rounded = Math.round(absNum * scale) / scale;
+
+  const result = num < 0 ? -rounded : rounded;
+
+  // Convert to full decimal string
+  if (magnitude >= 0) {
+    // For numbers >= 1
+    const decimalPlaces = n - magnitude - 1;
+    return result.toFixed(Math.max(0, decimalPlaces));
+  } else {
+    // For numbers < 1
+    const decimalPlaces = Math.abs(magnitude) + n - 1;
+    return result.toFixed(decimalPlaces);
+  }
+}
+
 /**
  * Get the current reward rate from the GaugeController
  */
@@ -173,35 +302,4 @@ export async function getCurrentRewardRate(marketAddress: string) {
     lastUpdated: new Date(Number(rewardData[2]) * 1000),
     incentiveEndsAt: new Date(Number(rewardData[3]) * 1000)
   };
-}
-
-
-/**
- * Mock function to get PENDLE token price
- * In a production environment, this would call a price oracle or API
- */
-export async function getPendlePrice(): Promise<number> {
-  const price = await coinGeckoService.getPendlePrice()
-  return price
-}
-
-/**
- * Mock function to get market TVL
- * In a production environment, this would call contract methods to calculate actual TVL
- */
-export async function getMarketTVL(marketAddress: string): Promise<number> {
-  // Mock TVL - in production, you would calculate this based on totalPt, totalSy, and their prices
-  // This should be implemented using on-chain data
-  
-  // For demo purposes, return a mock value (in USD)
-  const mockTVLs: {[key: string]: number} = {
-    // Add some example market addresses and TVLs
-    "0x3F5EA53d1160177445B1898afbB16da111182418": 2450000,
-    "0x6e4e95fab7db1f0524b4b0a05f0b9c96380b7dfa": 1250000,
-    // Default TVL if the market isn't in our mock data
-    "default": 1000000
-  };
-  
-  const normalizedAddress = marketAddress.toLowerCase();
-  return mockTVLs[normalizedAddress] || mockTVLs["default"];
 }

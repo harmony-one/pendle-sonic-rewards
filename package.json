@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "check": "tsx src/checkRewardsEvents.ts",
-    "user:rewards": "tsx src/user/userRewards.ts",
+    "user:rewards": "tsx src/user/positionAPR.ts",
     "market:claimed": "tsx src/market/marketRewards.ts",
     "market:updates": "tsx src/market/rewardUpdates.ts",
     "market:current": "tsx src/market/currentRewardRate.ts",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/node": "^22.14.0",
+    "decimal.js": "^10.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
     "viem": "^2.25.0"
