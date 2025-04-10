@@ -8,8 +8,11 @@
   "type": "module",
   "scripts": {
     "check": "tsx src/checkRewardsEvents.ts",
-    "rewards": "tsx src/getRewards.ts",
-    "market": "tsx src/getMarketRewards.ts"
+    "user:rewards": "tsx src/user/userRewards.ts",
+    "market:claimed": "tsx src/market/marketRewards.ts",
+    "market:updates": "tsx src/market/rewardUpdates.ts",
+    "market:current": "tsx src/market/currentRewardRate.ts",
+    "market:all": "tsx src/market/getAllRewardInfo.ts"
   },
   "dependencies": {
     "@types/node": "^22.14.0",

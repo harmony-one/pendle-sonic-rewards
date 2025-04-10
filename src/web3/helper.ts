@@ -1,4 +1,4 @@
-import { Address } from "viem";
+import { Address, getAddress } from "viem";
 import { MarketInfo, TokenInfo } from "../types";
 import { client } from "./client";
 import ERC20_ABI from './abis/erc20.json'
@@ -6,6 +6,7 @@ import PENDLE_MARKET_ABI from './abis/PendleMarket.json'
 import GAUGE_CONTROLLER_ABI from './abis/GaugeController.json'
 import { getContract } from "viem";
 import config from "../config";
+import coinGeckoService from "./api/coinGecko";
 
 // Cache for token and market information to reduce RPC calls
 const tokenCache = new Map<string, TokenInfo>();
@@ -156,4 +157,51 @@ export async function getGaugeController() {
   });
 
   return gaugeController;
+}
+
+
+/**
+ * Get the current reward rate from the GaugeController
+ */
+export async function getCurrentRewardRate(marketAddress: string) {
+  const gaugeController = await getGaugeController();
+  const rewardData = await gaugeController.read.rewardData([getAddress(marketAddress)]) as [string, string, string, string];
+  
+  return {
+    pendlePerSec: rewardData[0].toString(),
+    accumulatedPendle: rewardData[1].toString(),
+    lastUpdated: new Date(Number(rewardData[2]) * 1000),
+    incentiveEndsAt: new Date(Number(rewardData[3]) * 1000)
+  };
+}
+
+
+/**
+ * Mock function to get PENDLE token price
+ * In a production environment, this would call a price oracle or API
+ */
+export async function getPendlePrice(): Promise<number> {
+  const price = await coinGeckoService.getPendlePrice()
+  return price
+}
+
+/**
+ * Mock function to get market TVL
+ * In a production environment, this would call contract methods to calculate actual TVL
+ */
+export async function getMarketTVL(marketAddress: string): Promise<number> {
+  // Mock TVL - in production, you would calculate this based on totalPt, totalSy, and their prices
+  // This should be implemented using on-chain data
+  
+  // For demo purposes, return a mock value (in USD)
+  const mockTVLs: {[key: string]: number} = {
+    // Add some example market addresses and TVLs
+    "0x3F5EA53d1160177445B1898afbB16da111182418": 2450000,
+    "0x6e4e95fab7db1f0524b4b0a05f0b9c96380b7dfa": 1250000,
+    // Default TVL if the market isn't in our mock data
+    "default": 1000000
+  };
+  
+  const normalizedAddress = marketAddress.toLowerCase();
+  return mockTVLs[normalizedAddress] || mockTVLs["default"];
 }

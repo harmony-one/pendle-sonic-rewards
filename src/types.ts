@@ -64,24 +64,24 @@ export interface MarketRewardInfo {
   market: string;
   marketInfo: MarketInfo;
   amount: string;
-  amountFormatted: string;
+  amountFormatted: string | null;
   timestamp: Date;
   blockNumber: string;
-  transactionHash: string;
-  token: TokenInfo;
+  transactionHash?: string;
+  token: TokenInfo | null;
 }
 
 export interface RewardUpdateInfo {
   id: string;
   market: string;
-  marketInfo: MarketInfo;
+  marketInfo: MarketInfo | null;
   pendlePerSec: string;
-  pendlePerSecFormatted: string;
+  pendlePerSecFormatted: string | null;
   incentiveEndsAt: Date;
   timestamp: Date;
   blockNumber: string;
-  transactionHash: string;
-  token: TokenInfo;
+  transactionHash?: string;
+  token: TokenInfo | null;
 }
 
 export interface RewardRateInfo {
@@ -95,4 +95,5 @@ export interface RewardRateInfo {
   incentiveEndsAt: Date;
   pendleToken: TokenInfo | null;
   estimatedRewardAPR: string;
+  pendlePrice?: number
 }
