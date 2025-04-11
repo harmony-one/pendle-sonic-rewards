@@ -136,3 +136,6 @@ dist
 .pnp.*
 .qodo
 subgraph/data
+crypto-price-cache.json
+exports
+.DS_Store

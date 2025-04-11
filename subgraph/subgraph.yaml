@@ -12,7 +12,6 @@ dataSources:
       address: "0xfee31a6ec6ebefa0b5a594bf5b1139e3c6faa0fb"
       abi: PendleMarketFactoryV3
       startBlock: 7830430
-
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -38,6 +37,29 @@ dataSources:
         - event: SetOverriddenFee(indexed address,indexed address,uint80)
           handler: handleSetOverriddenFee
       file: ./src/pendle-market-factory-v-3.ts
+  - kind: ethereum
+    name: GaugeController
+    network: sonic
+    source:
+      address: "0xeE708FC793a02F1eDd5BB9DBD7fD13010D1F7136"
+      abi: GaugeController
+      startBlock: 7830430
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - MarketReward
+        - RewardUpdate
+      abis:
+        - name: GaugeController
+          file: ./abis/GaugeController.json
+      eventHandlers:
+        - event: MarketClaimReward(indexed address,uint256)
+          handler: handleMarketClaimReward
+        - event: UpdateMarketReward(indexed address,uint256,uint256)
+          handler: handleUpdateMarketReward
+      file: ./src/gauge-controller.ts
 templates:
   - kind: ethereum
     name: PendleMarket

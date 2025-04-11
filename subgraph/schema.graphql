@@ -72,3 +72,20 @@ type RedeemRewards @entity {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type MarketReward @entity {
+  id: ID!
+  market: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}
+
+type RewardUpdate @entity {
+  id: ID!
+  market: Bytes!
+  pendlePerSec: BigInt!
+  incentiveEndsAt: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+}

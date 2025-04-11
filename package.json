@@ -7,8 +7,12 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "check": "tsx src/check-rewards-events.ts",
-    "rewards": "tsx src/get-rewards.ts"
+    "check": "tsx src/checkRewardsEvents.ts",
+    "user:rewards": "tsx src/user/userRewards.ts",
+    "market:claimed": "tsx src/market/marketRewards.ts",
+    "market:updates": "tsx src/market/rewardUpdates.ts",
+    "market:current": "tsx src/market/currentRewardRate.ts",
+    "market:all": "tsx src/market/getAllRewardInfo.ts"
   },
   "dependencies": {
     "@types/node": "^22.14.0",

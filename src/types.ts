@@ -37,7 +37,7 @@ export interface TokenInfo {
 
 export interface MarketInfo {
   address: Address;
-  principalToken: TokenInfo;
+  principalToken: TokenInfo | null;
   yieldToken: TokenInfo | null;
   standardizedYield: TokenInfo | null;
   rewardTokens: TokenInfo[];
@@ -57,4 +57,43 @@ export interface RedeemEventInfo {
   transactionHash: string;
   market: MarketInfo;
   rewards: RewardInfo[];
+}
+
+export interface MarketRewardInfo {
+  id: string;
+  market: string;
+  marketInfo: MarketInfo;
+  amount: string;
+  amountFormatted: string | null;
+  timestamp: Date;
+  blockNumber: string;
+  transactionHash?: string;
+  token: TokenInfo | null;
+}
+
+export interface RewardUpdateInfo {
+  id: string;
+  market: string;
+  marketInfo: MarketInfo | null;
+  pendlePerSec: string;
+  pendlePerSecFormatted: string | null;
+  incentiveEndsAt: Date;
+  timestamp: Date;
+  blockNumber: string;
+  transactionHash?: string;
+  token: TokenInfo | null;
+}
+
+export interface RewardRateInfo {
+  market: string;
+  marketInfo: MarketInfo;
+  pendlePerSec: string;
+  pendlePerSecFormatted: string;
+  accumulatedPendle: string;
+  accumulatedPendleFormatted: string;
+  lastUpdated: Date;
+  incentiveEndsAt: Date;
+  pendleToken: TokenInfo | null;
+  estimatedRewardAPR: string;
+  pendlePrice?: number
 }
