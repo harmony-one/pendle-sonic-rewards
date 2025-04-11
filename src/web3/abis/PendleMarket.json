@@ -30,5 +30,98 @@
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "account", "type": "address"}],
+    "name": "balanceOf",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "redeemRewards",
+    "outputs": [{"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+    "name": "activeBalance",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "expiry",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "router", "type": "address"}],
+    "name": "readState",
+    "outputs": [
+      {
+        "components": [
+          {"internalType": "int256", "name": "totalPt", "type": "int256"},
+          {"internalType": "int256", "name": "totalSy", "type": "int256"},
+          {"internalType": "int256", "name": "totalLp", "type": "int256"},
+          {"internalType": "address", "name": "treasury", "type": "address"},
+          {"internalType": "int256", "name": "scalarRoot", "type": "int256"},
+          {"internalType": "uint256", "name": "expiry", "type": "uint256"},
+          {"internalType": "uint256", "name": "lnFeeRateRoot", "type": "uint256"},
+          {"internalType": "uint256", "name": "reserveFeePercent", "type": "uint256"},
+          {"internalType": "uint256", "name": "lastLnImpliedRate", "type": "uint256"}
+        ],
+        "internalType": "struct MarketState",
+        "name": "market",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "exactPtIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "swapExactPtForSy",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "netSyOut",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "netSyFee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]
