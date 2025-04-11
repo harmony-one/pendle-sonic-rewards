@@ -1,11 +1,12 @@
 // currentRewardRate.ts - For getting current reward rates
 import { Address, getAddress } from 'viem';
 import { RewardRateInfo } from '../types';
-import { getGaugeController, getMarketInfo, getMarketTVL, getPendlePrice, getTokenInfo } from '../web3/helper';
+import { getGaugeController, getMarketInfo, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ensureExportDirectory } from '../helper';
+import coinGeckoService from '../web3/api/coinGecko';
 
 /**
  * Gets the current reward rate information for a market
@@ -28,13 +29,13 @@ async function getCurrentRewardRate(marketAddress: string): Promise<RewardRateIn
     // Calculate APR based on pendlePerSec
     const pendlePerSec = BigInt(rewardData[0]); // pendlePerSec is first value in tuple
     const pendlePerYear = pendlePerSec * BigInt(365 * 24 * 60 * 60);
-    const pendlePrice = await getPendlePrice();
+    const pendlePrice = await coinGeckoService.getPendlePrice()
     
     // Estimate APR using TVL
     let estimatedAPR = "Requires TVL data for calculation";
     
     try {
-      const marketTVL = await getMarketTVL(marketAddress);
+      const marketTVL = 1 // await getMarketTVL(marketAddress);
       if (marketTVL && marketTVL > 0 && pendlePrice > 0) {
         const yearlyRewardsInUsd = Number(formatTokenAmount(pendlePerYear.toString(), pendleTokenInfo?.decimals || 18)) * pendlePrice;
         const aprPercentage = (yearlyRewardsInUsd / marketTVL) * 100;
@@ -78,7 +79,7 @@ async function formatMarketHeader(marketAddress: string, rewardRate: RewardRateI
     // Try to get the TVL
     let tvlInfo = "N/A";
     try {
-      const tvl = await getMarketTVL(marketAddress);
+      const tvl = 1 // await getMarketTVL(marketAddress);
       tvlInfo = `$${tvl.toLocaleString()}`;
     } catch (error) {
       console.warn("Could not retrieve TVL:", error);

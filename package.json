@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "check": "tsx src/checkRewardsEvents.ts",
-    "user:rewards": "tsx src/user/positionAPR.ts",
+    "user:pt:rewards": "tsx src/user/pendlePTRewards.ts",
     "market:claimed": "tsx src/market/marketRewards.ts",
     "market:updates": "tsx src/market/rewardUpdates.ts",
     "market:current": "tsx src/market/currentRewardRate.ts",

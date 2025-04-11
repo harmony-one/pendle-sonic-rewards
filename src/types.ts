@@ -144,3 +144,16 @@ export interface PortfolioItem {
   type: string;
   depositLink: string;
 }
+
+export interface MarketState {
+  totalPt: bigint;
+  totalSy: bigint;
+  totalLp: bigint;
+  treasury: Address;
+  scalarRoot: bigint;
+  expiry: bigint;
+  lnFeeRateRoot: bigint;
+  reserveFeePercent: bigint;
+  lastLnImpliedRate: bigint;
+}
+
