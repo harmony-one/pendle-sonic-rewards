@@ -51,9 +51,13 @@ type Market @entity {
   id: Bytes!
   address: Bytes!
   principalToken: Bytes!
+  standardizedYield: Bytes
+  yieldToken: Bytes 
   createdAt: BigInt!
   creationTx: Bytes!
   redeemRewards: [RedeemRewards!]! @derivedFrom(field: "market")
+  ytSwaps: [YTSwap!]! @derivedFrom(field: "market")
+  ytStats: MarketYTStats
 }
 
 type RedeemRewardToken @entity {
@@ -88,4 +92,50 @@ type RewardUpdate @entity {
   incentiveEndsAt: BigInt!
   timestamp: BigInt!
   blockNumber: BigInt!
+}
+
+type YTSwap @entity {
+  id: Bytes!
+  ytToken: Bytes!
+  caller: Bytes!
+  market: Market!
+  receiver: Bytes!
+  netYtToAccount: BigInt!
+  netSyOrTokenToAccount: BigInt!
+  isToken: Boolean!
+  tokenAddress: Bytes
+  netSyIntermediate: BigInt
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# YT Yield Claim
+type YTYieldClaim @entity {
+  id: Bytes!
+  ytToken: Bytes!
+  user: Bytes!
+  market: Market
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# User YT Balance
+type UserYTBalance @entity {
+  id: Bytes! # user-ytToken
+  user: Bytes!
+  ytToken: Bytes!
+  market: Market
+  balance: BigInt!
+  lastUpdated: BigInt!
+}
+
+type MarketYTStats @entity {
+  id: Bytes! # market address
+  market: Market!
+  totalYTClaimed: BigInt!
+  totalYTHolders: BigInt!
+  lastUpdated: BigInt!
 }
