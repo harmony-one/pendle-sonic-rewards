@@ -11,7 +11,7 @@
     "user:pt:rewards": "tsx src/user/pendlePTRewards.ts",
     "user:yt:rewards": "tsx src/user/pendleYTRewards.ts",
     "user:rewards": "tsx src/user/userRewards.ts",
-    "market:apy": "tsx src/market/marketAPYTracker.ts",
+    "market:apy": "tsx src/market/marketApyTracker.ts",
     "market:claimed": "tsx src/market/marketRewards.ts",
     "market:updates": "tsx src/market/rewardUpdates.ts",
     "market:current": "tsx src/market/currentRewardRate.ts",
