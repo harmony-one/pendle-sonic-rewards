@@ -139,3 +139,12 @@ type MarketYTStats @entity {
   totalYTHolders: BigInt!
   lastUpdated: BigInt!
 }
+
+type UserLPPosition @entity {
+  id: Bytes! # user-market
+  user: Bytes!
+  market: Market!
+  balance: BigInt!
+  activeBalance: BigInt! # Tracks boosted balance for vePENDLE holders
+  lastUpdated: BigInt!
+}

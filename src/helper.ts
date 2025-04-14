@@ -1,8 +1,9 @@
 import path from "path";
-import { getCurrentRewardRate, getGaugeController, getMarketInfo, getTokenInfo } from "./web3/helper";
+import { getCurrentRewardRate, getGaugeController, getTokenInfo } from "./web3/helper";
 import { Address, getAddress } from "viem";
 import { formatTokenAmount } from "./web3/numberUtils";
 import * as fs from 'fs';
+import { getMarketInfo } from "./market/marketHelper";
 
 /**
  * Calculate timestamp for different time ranges

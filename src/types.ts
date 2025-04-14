@@ -157,3 +157,15 @@ export interface MarketState {
   lastLnImpliedRate: bigint;
 }
 
+export interface RewardToken {
+  address: Address;
+  symbol: string;
+  decimals: number;
+}
+
+export interface UnclaimedReward {
+  token: RewardToken;
+  amount: string;
+  amountRaw: bigint;
+  usdValue?: number;
+}

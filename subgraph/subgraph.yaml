@@ -82,6 +82,8 @@ templates:
       eventHandlers:
         - event: RedeemRewards(indexed address,uint256[])
           handler: handleRedeemRewards
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
   - kind: ethereum
     name: YieldToken
     network: sonic

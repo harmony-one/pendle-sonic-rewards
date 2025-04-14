@@ -1,374 +1,215 @@
-// getUserRewards.ts - For getting user claimed rewards
-import { Address, getAddress } from 'viem';
-import config from '../config';
-import { RedeemEventInfo, RewardInfo, SubgraphResponse } from '../types';
-import { getGaugeController, getMarketInfo, getTokenInfo } from '../web3/helper';
-import { formatTokenAmount } from '../web3/numberUtils';
-import * as fs from 'fs';
-import * as path from 'path';
-import { ensureExportDirectory, getTimestamp } from '../helper';
+import { Address, formatUnits } from "viem";
+import { calculatePTFixedYieldOnChain } from "./pendlePTRewards";
+import { getUnclaimedRewards, getUserActiveBalance, getUserLPBalance } from "./userHelper";
+import { UnclaimedReward } from "../types";
+// Import any functions you need from pendleYTRewards as well
 
-const SUBGRAPH_URL = config.graphUrl;
-const MAX_ITEMS_PER_PAGE = 1000;
 
 /**
- * Fetches reward redemptions for a user with pagination
+ * Calculate the boost factor for a user's LP position
+ * @param activeBalance User's active balance
+ * @param lpBalance User's LP balance
+ * @returns Boost factor as a number (1.0 means no boost)
  */
-async function fetchUserRewardsPage(
-  userAddress: string,
-  sinceDate: number,
-  skip: number = 0
-): Promise<any[]> {
-  const normalizedAddress = userAddress.toLowerCase();
-  
-  const query = `
-    query GetUserRewards($userAddress: Bytes!, $sinceDate: BigInt!, $skip: Int!) {
-      redeemRewards_collection(
-        first: ${MAX_ITEMS_PER_PAGE}
-        skip: $skip
-        where: { 
-          user: $userAddress, 
-          blockTimestamp_gte: $sinceDate 
-        }
-        orderBy: blockTimestamp
-        orderDirection: desc
-      ) {
-        id
-        user
-        blockTimestamp
-        transactionHash
-        market {
-          id
-          address
-          principalToken
-          createdAt
-        }
-        rewards {
-          id
-          token
-          amount
-        }
-      }
-    }
-  `;
-  
-  const response = await fetch(SUBGRAPH_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      query,
-      variables: {
-        userAddress: normalizedAddress,
-        sinceDate: `${sinceDate}`,
-        skip: skip
-      },
-    }),
-  });
-  
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  
-  const result = await response.json();
-  
-  // Add error handling for GraphQL errors
-  if (result.errors) {
-    console.error("GraphQL errors:", result.errors);
-    throw new Error(`GraphQL error: ${result.errors[0].message}`);
-  }
-  
-  return result.data?.redeemRewards_collection || [];
+function calculateBoostFactor(activeBalance: bigint, lpBalance: bigint): number {
+  if (lpBalance === 0n) return 1.0;
+  return Number(activeBalance) / Number(lpBalance);
 }
 
 /**
- * Fetches all reward redemptions for a user with pagination
+ * Get comprehensive market rewards data for a user
+ * @param marketAddress Pendle market address
+ * @param userAddress User wallet address
+ * @returns Detailed market rewards data
  */
-async function getUserRewardRedemptions(userAddress: string, sinceDate: number): Promise<RedeemEventInfo[]> {
+async function getUserMarketRewards(
+  marketAddress: Address,
+  userAddress: Address
+): Promise<{
+  marketAddress: Address;
+  lpBalance: bigint;
+  activeBalance: bigint;
+  boostFactor: number;
+  unclaimedRewards: UnclaimedReward[];
+}> {
   try {
-    // Implement pagination to handle more than 1000 rows
-    let allRedeemEvents: any[] = [];
-    let currentPage = 0;
-    let hasMoreData = true;
+    // Get balances
+    const [lpBalance, activeBalance] = await Promise.all([
+      getUserLPBalance(marketAddress, userAddress),
+      getUserActiveBalance(marketAddress, userAddress)
+    ]);
     
-    while (hasMoreData) {
-      const skip = currentPage * MAX_ITEMS_PER_PAGE;
-      const redeemEvents = await fetchUserRewardsPage(userAddress, sinceDate, skip);
-      
-      allRedeemEvents = [...allRedeemEvents, ...redeemEvents];
-      currentPage++;
-      
-      // If we received fewer items than the maximum, we've reached the end
-      if (redeemEvents.length < MAX_ITEMS_PER_PAGE) {
-        hasMoreData = false;
-      }
-      
-      // Log progress for larger datasets
-      console.log(`Fetched ${allRedeemEvents.length} reward redemption events so far...`);
-    }
+    // Calculate boost factor
+    const boostFactor = calculateBoostFactor(activeBalance.activeBalanceRaw, lpBalance);
     
-    // Enrich the data with contract calls
-    const enrichedEvents: RedeemEventInfo[] = [];
-    
-    for (const event of allRedeemEvents) {
-      // Get market info with PT, YT, SY details
-      const marketInfo = await getMarketInfo(
-        getAddress(event.market.address),
-      );
-      
-      // Enrich reward info
-      const rewardTokenAddresses = marketInfo.rewardTokens.map(token => token.address);
-     
-      // Enrich reward info
-      const enrichedRewards: RewardInfo[] = [];
+    // Get unclaimed rewards
+    const unclaimedRewards = await getUnclaimedRewards(marketAddress, userAddress);
 
-      for (const reward of event.rewards) {
-        // Parse the token index from the token field
-        let tokenIndex = 0;
-        if (reward.token.startsWith('0x')) {
-          tokenIndex = parseInt(reward.token.slice(2, 4), 16);
-        }
-        
-        // Get the actual token address using the index
-        const tokenAddress = tokenIndex < rewardTokenAddresses.length 
-          ? rewardTokenAddresses[tokenIndex] 
-          : '0x0000000000000000000000000000000000000000';
-        const tokenInfo = await getTokenInfo(getAddress(tokenAddress));
-        if (tokenInfo) {
-          const amountFormatted = formatTokenAmount(reward.amount, tokenInfo.decimals);
-        
-          enrichedRewards.push({
-            token: tokenInfo,
-            amount: reward.amount,
-            amountFormatted,
-          });
-        }
-      }
-      
-      enrichedEvents.push({
-        id: event.id,
-        user: getAddress(event.user),
-        timestamp: new Date(parseInt(event.blockTimestamp) * 1000),
-        transactionHash: event.transactionHash,
-        market: {
-          ...marketInfo,
-          createdAt: new Date(parseInt(event.market.createdAt) * 1000),
-        },
-        rewards: enrichedRewards,
-      });
-    }
-    
-    return enrichedEvents;
+    return {
+      marketAddress,
+      lpBalance,
+      activeBalance: activeBalance.activeBalanceRaw,
+      boostFactor,
+      unclaimedRewards
+    };
   } catch (error) {
-    console.error("Error fetching user rewards:", error);
+    console.error(`Error getting market rewards data for ${marketAddress}:`, error);
     throw error;
   }
 }
 
-async function formatUserHeader(userAddress: string, redemptions: RedeemEventInfo[]) {
-  try {
-    const gaugeController = await getGaugeController();
-    const pendleTokenAddress = await gaugeController.read.pendle();
-    const pendleTokenInfo = await getTokenInfo(pendleTokenAddress as Address);
-    
-    // Get unique markets from redemptions
-    const uniqueMarkets = new Map();
-    for (const event of redemptions) {
-      if (!uniqueMarkets.has(event.market.address)) {
-        uniqueMarkets.set(event.market.address, event.market);
-      }
-    }
-    
-    // Build header
-    const headerLines = [
-      `# User Rewards Redemption Report`,
-      `# Generated: ${new Date().toISOString()}`,
-      `# User Address: ${userAddress}`,
-      `# `,
-      `# This report contains all PENDLE reward redemptions by this user`,
-      `# along with SY token rewards (rewards from the underlying yield source)`,
-      `# `,
-    ];
-    
-    // Add market information to header
-    if (uniqueMarkets.size > 0) {
-      headerLines.push(`# Markets with redemptions:`);
-      
-      for (const market of uniqueMarkets.values()) {
-        headerLines.push(`# `);
-        headerLines.push(`# Market: ${market.address} (${market.principalToken?.symbol || 'Unknown Market'})`);
-        
-        if (market.principalToken) {
-          headerLines.push(`# Principal Token (PT): ${market.principalToken.symbol} (${market.principalToken.address})`);
-        }
-        
-        if (market.yieldToken) {
-          headerLines.push(`# Yield Token (YT): ${market.yieldToken.symbol} (${market.yieldToken.address})`);
-        }
-        
-        if (market.standardizedYield) {
-          headerLines.push(`# Standardized Yield (SY): ${market.standardizedYield.symbol} (${market.standardizedYield.address})`);
-        }
-      }
-      
-      headerLines.push(`# `);
-    }
-    
-    // Add info about reward tokens
-    const rewardTokens = new Set();
-    for (const event of redemptions) {
-      for (const reward of event.rewards) {
-        rewardTokens.add(`${reward.token.symbol} (${reward.token.address})`);
-      }
-    }
-    
-    if (rewardTokens.size > 0) {
-      headerLines.push(`# Reward tokens: ${Array.from(rewardTokens).join(', ')}`);
-      headerLines.push(`# `);
-    }
-    
-    return headerLines.join('\n');
-  } catch (error) {
-    console.error("Error creating user header:", error);
-    return `# User Rewards Redemption Report\n# Generated: ${new Date().toISOString()}\n# User Address: ${userAddress}\n# Error retrieving user details`;
-  }
-}
-
 /**
- * Get total rewards value for a user
+ * Get comprehensive rewards analysis for a user across all reward types
+ * @param marketAddresses Array of Pendle market addresses
+ * @param userAddress User wallet address 
+ * @param routerAddress Pendle router address
+ * @returns Comprehensive rewards analysis
  */
-async function getTotalRewardsValue(userRedemptions: RedeemEventInfo[]): Promise<Record<string, { total: string, symbol: string }>> {
-  // Aggregate rewards by token
-  const totals: Record<string, { amount: bigint, decimals: number, symbol: string }> = {};
+async function getAllUserRewards(
+  marketAddresses: Address[],
+  userAddress: Address,
+  routerAddress: Address
+) {
+  // Store results
+  const marketRewards: any[] = [];
+  const ptRewards: any[] = [];
+  const ytRewards: any[] = [];
   
-  for (const redemption of userRedemptions) {
-    for (const reward of redemption.rewards) {
-      const tokenAddress = reward.token.address;
+  // Process each market
+  for (const marketAddress of marketAddresses) {
+    try {
+      // Get market rewards (LP + unclaimed)
+      const marketRewardData = await getUserMarketRewards(marketAddress, userAddress);
+      marketRewards.push(marketRewardData);
       
-      if (!totals[tokenAddress]) {
-        totals[tokenAddress] = { 
-          amount: BigInt(0), 
-          decimals: reward.token.decimals,
-          symbol: reward.token.symbol 
-        };
-      }
+      // const ptRewardData = await calculatePTFixedYieldOnChain(
+      //   marketAddress, 
+      //   userAddress, 
+      //   routerAddress
+      // );
+      // ptRewards.push(ptRewardData);
+
+      // // Get PT rewards if applicable
+      // if (/* some condition to check if user has PT */) {
+      //   const ptRewardData = await calculatePTFixedYieldOnChain(
+      //     marketAddress, 
+      //     userAddress, 
+      //     routerAddress
+      //   );
+      //   ptRewards.push(ptRewardData);
+      // }
       
-      totals[tokenAddress].amount += BigInt(reward.amount);
+      // Get YT rewards if applicable
+      // Add your YT reward calculation logic here
+      
+    } catch (error) {
+      console.error(`Error processing market ${marketAddress}:`, error);
     }
   }
   
-  // Format totals
-  const formattedTotals: Record<string, { total: string, symbol: string }> = {};
-  
-  for (const [address, data] of Object.entries(totals)) {
-    formattedTotals[address] = {
-      total: formatTokenAmount(data.amount.toString(), data.decimals),
-      symbol: data.symbol
-    };
-  }
-  
-  return formattedTotals;
+  // Return all rewards in one object
+  return {
+    marketRewards,
+    ptRewards,
+    ytRewards,
+    // Add summary statistics
+    summary: {
+      totalUnclaimedValue: 0, // Calculate from marketRewards
+      totalPtProjectedValue: 0, // Calculate from ptRewards
+      totalYtAccruedValue: 0, // Calculate from ytRewards
+    }
+  };
 }
 
 /**
- * Export data to TSV file
+ * Generate a formatted report for all user rewards
+ * @param rewardsData Complete rewards data
+ * @returns Formatted string report
  */
-async function exportToTsv(data: RedeemEventInfo[], userAddress: string, timeRange: string) {
-  const exportDir = ensureExportDirectory();
-  const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '');
-  const filename = path.join(exportDir, `${timestamp}_user_rewards_${userAddress.substring(0, 8)}_${timeRange}.tsv`);
+function formatUserRewardsReport(rewardsData: any): string {
+  let report = `=== PENDLE REWARDS REPORT ===\n\n`;
   
-  // Generate user header
-  const header = await formatUserHeader(userAddress, data);
-  
-  // Create TSV content
-  const tableHeaders = ['Timestamp', 'Date', 'Transaction Hash', 'Market', 'Market Address', 'Token', 'Amount'];
-  
-  const rows: string[][] = [];
-  
-  // Process each event and create multiple rows (one per reward)
-  for (const event of data) {
-    for (const reward of event.rewards) {
-      rows.push([
-        event.timestamp.toISOString(),
-        event.timestamp.toLocaleString(),
-        event.transactionHash,
-        event.market.principalToken?.symbol || 'Unknown Market',
-        event.market.address,
-        reward.token.symbol,
-        reward.amountFormatted
-      ]);
+  // Add market rewards section
+  report += `--- MARKET LP REWARDS ---\n`;
+  for (const market of rewardsData.marketRewards) {
+    report += `Market: ${market.marketAddress}\n`;
+    report += `LP Balance: ${formatUnits(market.lpBalance, 18)}\n`;
+    report += `Boost Factor: ${market.boostFactor.toFixed(2)}x\n`;
+    
+    report += `Unclaimed Rewards:\n`;
+    for (const reward of market.unclaimedRewards) {
+      report += `  ${reward.token.symbol}: ${reward.amount}\n`;
     }
+    report += `\n`;
   }
   
-  const tsvContent = [
-    header,
-    tableHeaders.join('\t'),
-    ...rows.map(row => row.join('\t'))
-  ].join('\n');
+  // Add PT rewards section
+  report += `--- PT FIXED YIELD ---\n`;
+  for (const pt of rewardsData.ptRewards) {
+    report += `PT: ${pt.ptSymbol} (${pt.ptAddress})\n`;
+    report += `Balance: ${pt.ptTokens.toFixed(6)}\n`;
+    report += `Maturity: ${pt.maturityDate} (${pt.daysToMaturity.toFixed(0)} days left)\n`;
+    report += `Fixed APY: ${pt.fixedAPY.toFixed(2)}%\n`;
+    report += `Current Value: $${pt.estimatedCurrentValue.toFixed(2)}\n`;
+    report += `Maturity Value: $${pt.valueAtMaturity.toFixed(2)}\n`;
+    report += `Projected Gain: ${pt.projectedGain.percentage.toFixed(2)}%\n\n`;
+  }
   
-  fs.writeFileSync(filename, tsvContent);
-  console.log(`Data exported to ${filename}`);
-  return filename;
+  // Add YT rewards section
+  // Customize based on your YT rewards structure
+  
+  // Add summary
+  report += `=== SUMMARY ===\n`;
+  report += `Total Unclaimed Rewards Value: $${rewardsData.summary.totalUnclaimedValue.toFixed(2)}\n`;
+  report += `Total PT Projected Value: $${rewardsData.summary.totalPtProjectedValue.toFixed(2)}\n`;
+  report += `Total YT Accrued Value: $${rewardsData.summary.totalYtAccruedValue.toFixed(2)}\n`;
+  report += `Combined Total Value: $${(
+    rewardsData.summary.totalUnclaimedValue + 
+    rewardsData.summary.totalPtProjectedValue + 
+    rewardsData.summary.totalYtAccruedValue
+  ).toFixed(2)}\n`;
+  
+  return report;
 }
 
 /**
- * Main function
+ * Example CLI interface 
  */
 async function main() {
   // Get command line arguments
   const args = process.argv.slice(2);
-  const userAddress = args[0];
-  const timeRange = args[1] || 'month';
+  const userAddress = args[0] as Address;
+  const marketAddresses = args.slice(1) as Address[];
   
-  if (!userAddress) {
-    console.error('Please provide a user wallet address');
+  if (!userAddress || marketAddresses.length === 0) {
+    console.error('Missing required arguments');
+    console.error('Usage: yarn run user:rewards <userAddress> <marketAddress1> [marketAddress2] ...');
     process.exit(1);
   }
   
-  console.log(`Fetching reward redemptions for user ${userAddress} since ${timeRange}...`);
-  
-
-  
-  const sinceDate = getTimestamp(timeRange);
-  const redemptions = await getUserRewardRedemptions(userAddress, sinceDate);
-
-  console.log(`\nFound ${redemptions.length} redemption events`);
-  
-  // Display summary of rewards grouped by token
-  console.log('\n=== Total Rewards Summary ===');
-  const totals = await getTotalRewardsValue(redemptions);
-  
-  for (const [address, data] of Object.entries(totals)) {
-    console.log(`${data.total} ${data.symbol} (${address})`);
-  }
-  
-  // Display detailed information (limited to few for console readability)
-  const MAX_DISPLAY = 5;
-  if (redemptions.length > 0) {
-    console.log(`\n=== Most Recent Redemption Events (showing ${Math.min(MAX_DISPLAY, redemptions.length)} of ${redemptions.length}) ===`);
+  try {
+    // Get all user rewards
+    const routerAddress = "0x888888888889758F76e7103c6CbF23ABbF58F946" as Address; // Set your router address
+    const rewardsData = await getAllUserRewards(marketAddresses, userAddress, routerAddress);
     
-    for (let i = 0; i < Math.min(MAX_DISPLAY, redemptions.length); i++) {
-      const event = redemptions[i];
-      console.log('\nRedemption Event:');
-      console.log(`Date: ${event.timestamp.toLocaleString()}`);
-      console.log(`Transaction: ${event.transactionHash}`);
-      console.log(`Market: ${event.market.principalToken?.symbol || 'Unknown'} (${event.market.address})`);
-      
-      console.log('Rewards:');
-      for (const reward of event.rewards) {
-        console.log(`  ${reward.amountFormatted} ${reward.token.symbol}`);
-      }
-    }
+    // Print formatted report
+    console.log(formatUserRewardsReport(rewardsData));
+    
+    return rewardsData;
+  } catch (error) {
+    console.error("Error:", error.message);
+    process.exit(1);
   }
-  
-  // Export to TSV
-  const exportedFile = await exportToTsv(redemptions, userAddress, timeRange);
-  console.log(`\nReport saved to: ${exportedFile}`);
 }
 
-// Run the script when executed directly
+// Execute main function if this file is run directly
 if (import.meta.url === import.meta.resolve('./userRewards.ts')) {
   main().catch(console.error);
 }
 
-export { getUserRewardRedemptions, getTotalRewardsValue };
+export {
+  getUserMarketRewards,
+  getAllUserRewards,
+  formatUserRewardsReport,
+  calculateBoostFactor
+};

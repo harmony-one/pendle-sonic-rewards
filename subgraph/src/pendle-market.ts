@@ -1,9 +1,11 @@
 // subgraph/src/pendle-market.ts
 import {
-  RedeemRewards as RedeemRewardsEvent
+  RedeemRewards as RedeemRewardsEvent,
+  Transfer as TransferEvent
 } from "../generated/templates/PendleMarket/PendleMarket"
+import { UserLPPosition } from "../generated/schema"
 import { RedeemRewards, RedeemRewardToken, Market } from "../generated/schema"
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 export function handleRedeemRewards(event: RedeemRewardsEvent): void {  
   let id = event.transaction.hash.concatI32(event.logIndex.toI32())
@@ -34,5 +36,47 @@ export function handleRedeemRewards(event: RedeemRewardsEvent): void {
     
     reward.amount = event.params.rewardsOut[i];
     reward.save();
+  }
+}
+
+export function handleTransfer(event: TransferEvent): void {
+  let from = event.params.from
+  let to = event.params.to
+  let amount = event.params.value
+  
+  // Update sender balance
+  if (!from.equals(Address.zero())) {
+    let fromPositionId = from.concat(event.address)
+    let fromPosition = UserLPPosition.load(fromPositionId)
+    
+    if (fromPosition == null) {
+      fromPosition = new UserLPPosition(fromPositionId)
+      fromPosition.user = from
+      fromPosition.market = event.address
+      fromPosition.balance = BigInt.fromI32(0)
+      fromPosition.activeBalance = BigInt.fromI32(0)
+    }
+    
+    fromPosition.balance = fromPosition.balance.minus(amount)
+    fromPosition.lastUpdated = event.block.timestamp
+    fromPosition.save()
+  }
+  
+  // Update receiver balance
+  if (!to.equals(Address.zero())) {
+    let toPositionId = to.concat(event.address)
+    let toPosition = UserLPPosition.load(toPositionId)
+    
+    if (toPosition == null) {
+      toPosition = new UserLPPosition(toPositionId)
+      toPosition.user = to
+      toPosition.market = event.address
+      toPosition.balance = BigInt.fromI32(0)
+      toPosition.activeBalance = BigInt.fromI32(0)
+    }
+    
+    toPosition.balance = toPosition.balance.plus(amount)
+    toPosition.lastUpdated = event.block.timestamp
+    toPosition.save()
   }
 }

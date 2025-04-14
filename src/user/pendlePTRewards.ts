@@ -8,7 +8,9 @@ import { client } from "../web3/client";
 import config from "../config";
 import fs from 'fs';
 import path from 'path';
-import { getMarketInfo, getCurrentRewardRate, getGaugeController, getTokenInfo } from "../web3/helper";
+import { getMarketInfo } from "../market/marketHelper";
+import { getLPClaimableRewards, getUnclaimedRewards, getUserActiveBalance } from "./userHelper";
+
 
 /**
  * Calculate PT fixed yield rewards based solely on on-chain data
