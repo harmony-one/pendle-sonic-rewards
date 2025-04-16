@@ -463,6 +463,7 @@ async function trackAPYChanges(marketAddress: Address, interval = 3600000) {
  * Main function
  */
 async function main() {
+  console.log('NOT WORKING - Keep using pendleLpPtYieldTracker')
   // Get command line arguments
   const args = process.argv.slice(2);
   const marketAddress = args[0] as Address;
