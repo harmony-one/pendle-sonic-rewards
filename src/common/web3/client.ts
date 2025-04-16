@@ -1,8 +1,9 @@
 import { createPublicClient, http } from "viem";
 import { sonic } from "viem/chains";
-import config from "../config";
+
+export const SONIC_RPC_URL = sonic.rpcUrls.default.http[0]
 
 export const client = createPublicClient({
   chain: sonic,
-  transport: http(config.rpcUrl)
+  transport: http(SONIC_RPC_URL)
 });

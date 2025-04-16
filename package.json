@@ -7,15 +7,17 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "check": "tsx src/checkRewardsEvents.ts",
-    "user:pt:rewards": "tsx src/user/pendlePTRewards.ts",
-    "user:yt:rewards": "tsx src/user/pendleYTRewards.ts",
-    "user:rewards": "tsx src/user/userRewards.ts",
-    "market:apy": "tsx src/market/marketApyTracker.ts",
-    "market:claimed": "tsx src/market/marketRewards.ts",
-    "market:updates": "tsx src/market/rewardUpdates.ts",
-    "market:current": "tsx src/market/currentRewardRate.ts",
-    "market:all": "tsx src/market/getAllRewardInfo.ts"
+    "check": "tsx src/pendle/checkRewardsEvents.ts",
+    "user:pt:rewards": "tsx src/pendle/user/pendlePTRewards.ts",
+    "user:yt:rewards": "tsx src/pendle/user/pendleYTRewards.ts",
+    "user:rewards": "tsx src/pendle/user/userRewards.ts",
+    "market:lp:tracker": "tsx src/pendle/market/pendleLpPtYieldTracker.ts", 
+    "market:apy": "tsx src/pendle/market/marketApyTracker.ts",
+    "market:claimed": "tsx src/pendle/market/marketRewards.ts",
+    "market:updates": "tsx src/pendle/market/rewardUpdates.ts",
+    "market:current": "tsx src/pendle/market/currentRewardRate.ts",
+    "market:all": "tsx src/pendle/market/getAllRewardInfo.ts",
+    "aave:apr": "tsx src/aave/aaveApr.ts"
   },
   "dependencies": {
     "@types/node": "^22.14.0",

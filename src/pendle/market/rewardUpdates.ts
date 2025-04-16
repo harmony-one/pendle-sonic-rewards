@@ -6,8 +6,9 @@ import { getGaugeController, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ensureExportDirectory, formatMarketHeader, getTimestamp } from '../helper';
+import { formatMarketHeader, getTimestamp } from '../helper';
 import { getMarketInfo } from './marketHelper';
+import { ensureExportDirectory } from '../../common/helper';
 
 const SUBGRAPH_URL = config.graphUrl;
 const MAX_ITEMS_PER_PAGE = 1000;

@@ -1,5 +1,5 @@
 // marketHelper.ts
-import { client } from "../web3/client";
+import { client } from "../../common/web3/client";
 import PENDLE_MARKET_ABI from '../web3/abis/PendleMarket.json';
 import { Address } from "viem";
 import { MarketInfo, TokenInfo } from "../types";

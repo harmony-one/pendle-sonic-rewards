@@ -1,6 +1,6 @@
 import { Address, formatUnits, getAddress, parseUnits } from "viem";
 import { MarketInfo, PortfolioItem, TokenInfo } from "../types";
-import { client } from "./client";
+import { client } from "../../common/web3/client";
 import ERC20_ABI from './abis/erc20.json'
 import PENDLE_MARKET_ABI from './abis/PendleMarket.json'
 import GAUGE_CONTROLLER_ABI from './abis/GaugeController.json'

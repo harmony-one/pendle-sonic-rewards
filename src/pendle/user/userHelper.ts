@@ -5,7 +5,7 @@ import REWARD_MANAGER_ABI from '../web3/abis/RewardManager.json'
 import { UnclaimedReward } from "../types";
 import { getMarketRewardTokens } from "../market/marketHelper";
 import { getTokenInfo } from "../web3/helper";
-import coinGeckoService from "../web3/api/coinGecko";
+import coinGeckoService from "../../common/api/coinGecko";
 
 /**
  * Get reward data from userReward mapping for a specific token

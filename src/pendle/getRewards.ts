@@ -1,8 +1,9 @@
 import { getAddress, formatUnits } from 'viem';
 import config from './config';
 import { RedeemEventInfo, RewardInfo, SubgraphResponse } from './types';
-import { getMarketInfo, getTokenInfo } from './web3/helper';
+import { getTokenInfo } from './web3/helper';
 import { formatTokenAmount } from './web3/numberUtils';
+import { getMarketInfo } from './market/marketHelper';
 
 
 const SUBGRAPH_URL = config.graphUrl

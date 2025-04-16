@@ -1,12 +1,13 @@
 // currentRewardRate.ts - For getting current reward rates
 import { Address, getAddress } from 'viem';
 import { RewardRateInfo } from '../types';
-import { getGaugeController, getMarketInfo, getTokenInfo } from '../web3/helper';
+import { getGaugeController, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';
 import * as fs from 'fs';
 import * as path from 'path';
-import { ensureExportDirectory } from '../helper';
-import coinGeckoService from '../web3/api/coinGecko';
+import { getMarketInfo } from './marketHelper';
+import coinGeckoService from '../../common/api/coinGecko';
+import { ensureExportDirectory } from '../../common/helper';
 
 /**
  * Gets the current reward rate information for a market
