@@ -1,3 +1,4 @@
+// subgraph/src/gauge-controller.ts
 import { MarketClaimReward, UpdateMarketReward } from '../generated/GaugeController/GaugeController'
 import { MarketReward, RewardUpdate } from '../generated/schema'
 

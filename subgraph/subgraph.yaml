@@ -25,6 +25,8 @@ dataSources:
       abis:
         - name: PendleMarketFactoryV3
           file: ./abis/PendleMarketFactoryV3.json
+        - name: PendleMarket  
+          file: ./abis/PendleMarket.json 
       eventHandlers:
         - event: CreateNewMarket(indexed address,indexed address,int256,int256,uint256)
           handler: handleCreateNewMarket
@@ -80,3 +82,32 @@ templates:
       eventHandlers:
         - event: RedeemRewards(indexed address,uint256[])
           handler: handleRedeemRewards
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+  - kind: ethereum
+    name: YieldToken
+    network: sonic
+    source:
+      abi: YieldToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/yield-token.ts
+      entities:
+        - YTSwap
+        - YTRedemption
+        - YTYieldClaim
+        - UserYTBalance
+      abis:
+        - name: YieldToken
+          file: ./abis/YieldToken.json
+      eventHandlers:
+        - event: SwapYtAndSy(indexed address,indexed address,indexed address,int256,int256)
+          handler: handleSwapYtAndSy
+        - event: SwapYtAndToken(indexed address,indexed address,indexed address,address,int256,int256,uint256)
+          handler: handleSwapYtAndToken
+        - event: YieldClaimed(indexed address,uint256)
+          handler: handleYieldClaimed
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer

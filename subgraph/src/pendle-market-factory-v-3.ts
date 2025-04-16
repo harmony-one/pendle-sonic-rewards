@@ -6,7 +6,11 @@ import {
   OwnershipTransferred as OwnershipTransferredEvent,
   SetOverriddenFee as SetOverriddenFeeEvent
 } from "../generated/PendleMarketFactoryV3/PendleMarketFactoryV3"
-import { PendleMarket } from "../generated/templates"
+import { 
+  PendleMarket as PendleMarketTemplate,
+  YieldToken as YieldTokenTemplate
+} from "../generated/templates"
+import { PendleMarket } from "../generated/templates/PendleMarket/PendleMarket"
 import {
   CreateNewMarket,
   Initialized,
@@ -15,6 +19,7 @@ import {
   SetOverriddenFee,
   Market
 } from "../generated/schema"
+import { Address, log, Bytes } from "@graphprotocol/graph-ts"
 
 export function handleCreateNewMarket(event: CreateNewMarketEvent): void {
   let entity = new CreateNewMarket(
@@ -32,14 +37,45 @@ export function handleCreateNewMarket(event: CreateNewMarketEvent): void {
 
   entity.save()
 
+  // Create market entity
   let market = new Market(event.params.market)
   market.address = event.params.market
   market.principalToken = event.params.PT
   market.createdAt = event.block.timestamp
   market.creationTx = event.transaction.hash
+  
+  // Start tracking market events
+  PendleMarketTemplate.create(event.params.market)
+  
+  // Bind to the market contract to get its tokens
+  let marketContract = PendleMarket.bind(event.params.market)
+  
+  // Try to get the YT token address
+  let tokensCall = marketContract.try_readTokens()
+  
+  if (!tokensCall.reverted) {
+    // We successfully got the tokens
+    let syToken = tokensCall.value.get_SY()
+    let ytToken = tokensCall.value.get_YT()
+    
+    // Store in the market entity
+    market.standardizedYield = syToken
+    market.yieldToken = ytToken
+    
+    log.info("Market {} created with YT token {}", [
+      event.params.market.toHexString(),
+      ytToken.toHexString()
+    ])
+    
+    // Start tracking YT token events
+    YieldTokenTemplate.create(ytToken)
+  } else {
+    log.warning("Could not read tokens for market {}", [
+      event.params.market.toHexString()
+    ])
+  }
+  
   market.save()
-
-  PendleMarket.create(event.params.market)
 }
 
 export function handleInitialized(event: InitializedEvent): void {
