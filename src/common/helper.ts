@@ -11,3 +11,15 @@ export function ensureExportDirectory() {
   }
   return dir;
 }
+
+export function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp * 1000); // Convert to milliseconds
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+}

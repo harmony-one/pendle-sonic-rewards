@@ -10,6 +10,7 @@ const config = {
     aUsdcAddress: '0x578Ee1ca3a8E1b54554Da1Bf7C583506C4CD11c6' as Address,
     poolAddress: '0x5362dBb1e601abF3a4c14c22ffEdA64042E5eAA3' as Address, // default
     userAddress: '0x70709614BF9aD5bBAb18E2244046d48f234a1583' as Address, // default
+    aSonUSDCAddress: '0x6C5E14A212c1C3e4Baf6f871ac9B1a969918c131' as Address
   }
 }
 
