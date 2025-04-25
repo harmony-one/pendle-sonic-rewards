@@ -42,6 +42,7 @@ function filterBaseCampaignIds(
 export async function fetchUserRewardedCampaigns(userAddress: string): Promise<any> {
   try {
     const response = await api.users({ address : userAddress}).rewards.get({ query: { chainId: [146] }})
+    response.data && console.log(response.data[0])
     const campains = response.data && filterBaseCampaignIds(response.data)
     return campains
   } catch (error) {
@@ -73,7 +74,7 @@ export async function fetchCampaignDetails(campaignId: string): Promise<MerklCam
  * @param campaignId Campaign ID to get opportunity details for
  * @returns Opportunity details
  */
-export async function fetchOpportunityDetailsFromCampaing(campaningId: string): Promise<any> {
+export async function fetchOpportunityDetailsFromcampaign(campaningId: string): Promise<any> {
   try {
     const response = await api.opportunities.index.get({ query: { campaignId: campaningId }})
     return response.data;

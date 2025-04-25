@@ -1,7 +1,7 @@
 // pendleLpPtYieldTracker.ts - Focused script for tracking PT yield component for liquidity providers
 import { Address, formatEther, getAddress } from 'viem';
 import { client } from '../../common/web3/client';
-import { getLpPtYield } from './marketHelper';
+import { getLpPtYield, getPendleIncentiveYield } from './marketHelper';
 
 // ABI snippets needed for the calculation
 const PENDLE_MARKET_ABI = [
@@ -223,9 +223,10 @@ async function trackRecentPtYieldChanges(marketAddress: Address): Promise<void> 
 async function main() {
   const args = process.argv.slice(2);
   const marketAddress = args[0] as Address;
-  const ptRewards = await getLpPtYield(marketAddress)
+  // const ptRewards = await getLpPtYield(marketAddress)
+  const lpPendleRewards = await getPendleIncentiveYield(marketAddress)
   // missing Underlying yield + Pendle LP yield
-  console.log('PT yield component:', {ptRewards});
+  // console.log('PT yield component:', {ptRewards});
   // if (!marketAddress) {
   //   console.error('Please provide a market address');
   //   process.exit(1);

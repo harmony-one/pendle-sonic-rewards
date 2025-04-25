@@ -1,5 +1,5 @@
 import { formatTimestamp } from "../common/helper";
-import { fetchCampaignDetails, fetchOpportunityDetailsFromCampaing, fetchUserRewardedCampaigns } from "./api/merkl";
+import { fetchCampaignDetails, fetchOpportunityDetailsFromcampaign, fetchUserRewardedCampaigns } from "./api/merkl";
 import { MerklCampaign } from "./types";
 import config from "./web3/config";
 
@@ -13,19 +13,19 @@ export async function fetchOpportunitiesForCampaignsByTokenAddress(
   // Process each campaign ID
   for (const campaignId of campaignIds) {
     // Fetch campaign details
-    const campaing: MerklCampaign | null = await fetchCampaignDetails(campaignId);
+    const campaign: MerklCampaign | null = await fetchCampaignDetails(campaignId);
     // Skip if campaign not found
-    if (!campaing) {
+    if (!campaign) {
       continue;
     }
   
     // Check if the reward token address matches our target
-    if (campaing.rewardToken && 
-      campaing.rewardToken.address.toLowerCase() === targetTokenAddress.toLowerCase()) {
+    if (campaign.rewardToken && 
+      campaign.rewardToken.address.toLowerCase() === targetTokenAddress.toLowerCase()) {
       // Check if the campaign has an opportunity ID
-      if (campaing.opportunityId) {
+      if (campaign.opportunityId) {
         // Fetch opportunity details
-        const opps = await fetchOpportunityDetailsFromCampaing(campaignId) // campaing.opportunityId);
+        const opps = await fetchOpportunityDetailsFromcampaign(campaignId) // campaign.opportunityId);
         const opportunity = opps[0]
 
         if (opportunity) {
@@ -37,10 +37,10 @@ export async function fetchOpportunitiesForCampaignsByTokenAddress(
             apr: opportunity.apr,
             dailyRewards: opportunity.dailyRewards,
             lastCampaignCreatedAt: opportunity.lastCampaignCreatedAt,
-            campainId: campaing.id,
-            campaignId: campaing.campaignId,
-            startTimestamp: formatTimestamp(campaing.startTimestamp),
-            endTimestamp: formatTimestamp(campaing.endTimestamp),
+            campainId: campaign.id,
+            campaignId: campaign.campaignId,
+            startTimestamp: formatTimestamp(campaign.startTimestamp),
+            endTimestamp: formatTimestamp(campaign.endTimestamp),
           };
           opportunities.push(opportunityWithCampaign);
         }
@@ -53,9 +53,16 @@ export async function fetchOpportunitiesForCampaignsByTokenAddress(
 
 
 async function aaveMeritApr() {
+  const rewards = await fetchUserRewardedCampaigns("0x70709614BF9aD5bBAb18E2244046d48f234a1583")
+  
   const campains = await fetchUserRewardedCampaigns(config.contracts.userAddress)
-  const opportunities = await fetchOpportunitiesForCampaignsByTokenAddress(campains, config.contracts.aSonUSDCAddress)
-  console.log(opportunities)
+  campains && campains.forEach(async c => {
+    const details = await fetchOpportunityDetailsFromcampaign(c)
+    console.log(details)
+  });
+  // console.log(campains)
+  // const opportunities = await fetchOpportunitiesForCampaignsByTokenAddress(campains, config.contracts.aSonUSDCAddress)
+  // console.log(opportunities)
 }
 
 aaveMeritApr()
