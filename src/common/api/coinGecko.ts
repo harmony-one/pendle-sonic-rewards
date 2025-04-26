@@ -7,16 +7,13 @@ interface PriceCache {
   timestamp: number;
 }
 
-export const CoinGeckoTokenIdsMap: Record<string, string> = {
-  // Pendle token
-  "0xd9eaa386ccd65f30b366d6b9e34e1a4d7bd21dbc": "pendle",
-  
+export const CoinGeckoTokenIdsMap: Record<string, string> = {  
   // Common stablecoins on Sonic
   "0xd988097fb8612ae489eb654958ee926fd7ce18b5": "usd-coin", // USDC.e
   "0xf6e2ddf7a149c171e591c8d58449e371e6dc7570": "tether", // wstscUSD (using USDT as price)
   
-  // SONIC token
-  "0xf1ef7d2d4c0c881cd634481e0586ed5d2871a74b": "sonic-token",
+  // Pendle
+  "0xf1ef7d2d4c0c881cd634481e0586ed5d2871a74b": "pendle",
   
   // Add more token mappings as needed
   // Format: "lowercase_address": "coingecko_id"

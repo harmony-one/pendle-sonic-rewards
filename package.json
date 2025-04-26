@@ -19,7 +19,9 @@
     "market:all": "tsx src/pendle/market/getAllRewardInfo.ts",
     "aave:apr": "tsx src/aave/aaveApr.ts",
     "aave:merit": "tsx src/aave/aaveMeritApr.ts",
-    "aave:claim": "tsx src/aave/merklAutoClaim.ts"
+    "aave:claim": "tsx src/aave/merklAutoClaim.ts",
+    "equi:apr": "tsx src/equilibria/equilibriaApr.ts",
+    "equi:rewards": "tsx src/equilibria/poolRewards.ts"
   },
   "dependencies": {
     "@merkl/api": "^0.20.131",

@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem, type Address } from 'viem';
 import { sonic } from 'viem/chains';
-import config from './config';
+import config from '../config';
 
 // Define the ABI for the RedeemRewards event
 const redeemRewardsEventAbi = parseAbiItem(

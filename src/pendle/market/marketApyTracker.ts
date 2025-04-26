@@ -1,6 +1,6 @@
 // marketApyTracker.ts - For tracking complete market APY components
 import { Address, formatEther, getAddress } from 'viem';
-import config from '../config';
+import config from '../../config';
 import { getGaugeController, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';
 import * as fs from 'fs';

@@ -1,13 +1,9 @@
 // src/aave/merklAutoClaim.ts
 import { Address, parseAbi } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
-import { createWalletClient, http } from 'viem';
-import { sonic } from 'viem/chains';
 import { MerklApi } from '@merkl/api';
 import { client } from '../common/web3/client';
-import * as dotenv from 'dotenv'
 import coinGeckoService from '../common/api/coinGecko';
-dotenv.config()
+import config from '../config';
 // Initialize Merkl API
 const api = MerklApi('https://api.merkl.xyz').v4;
 
@@ -244,8 +240,8 @@ if (import.meta.url === import.meta.resolve('./merklAutoClaim.ts')) {
   const pendlePrice = await coinGeckoService.getPendlePrice()
   console.log('PENDLE PRICE', pendlePrice)
   // Replace with your wallet address and private key (use environment variables in production!)
-  const userAddress = process.env.WALLET_ADDRESS as Address; 
-  const privateKey = process.env.PRIVATE_KEY as `0x${string}`;
+  const userAddress = config.userAddress; 
+  const privateKey = config.privateKey;
   console.log(privateKey)
   if (!userAddress || !privateKey) {
     console.error('Please set WALLET_ADDRESS and PRIVATE_KEY environment variables');

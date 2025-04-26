@@ -3,11 +3,11 @@ import { client } from "../../common/web3/client";
 import coinGeckoService from '../../common/api/coinGecko';
 import PENDLE_MARKET_ABI from '../web3/abis/PendleMarket.json';
 import GAUGE_CONTROLLER_ABI from '../web3/abis/GaugeController.json'
-import ERC20_ABI from '../web3/abis/erc20.json'
 import { Address, formatEther } from "viem";
 import { MarketInfo, TokenInfo } from "../types";
-import { getTokenInfo } from "../web3/helper";
-import config from "../config";
+
+import config from "../../config";
+import { getTokenInfo } from "../../common/web3/helper";
 
 const marketCache = new Map<string, MarketInfo>();
 
@@ -108,7 +108,7 @@ export async function getMarketInfo(
 export async function getLpPtYield(marketAddress: Address): Promise<number | undefined> {
   try {
     // Get the current market state
-    const routerAddress = config.contracts.pendleRouter
+    const routerAddress = config.contracts.pendle.pendleRouter
     const marketState = await client.readContract({
       address: marketAddress,
       abi: PENDLE_MARKET_ABI,
@@ -153,8 +153,8 @@ export async function getLpPtYield(marketAddress: Address): Promise<number | und
 export async function getPendleIncentiveYield2(marketAddress: Address): Promise<number> {
   try {
     // 1. Get the PENDLE reward rate from the GaugeController
-    const gaugeControllerAddress = config.contracts.gaugeController;
-    const pendleTokenAddress = config.contracts.PENDLE;
+    const gaugeControllerAddress = config.contracts.pendle.gaugeController;
+    const pendleTokenAddress = config.contracts.pendle.PENDLE;
     
     // Query the reward data from the gauge controller
     const gaugeController = {
@@ -188,7 +188,7 @@ export async function getPendleIncentiveYield2(marketAddress: Address): Promise<
     
     // 4. Get the LP token value
     // For this we need the total value of assets in the pool
-    const routerAddress = config.contracts.pendleRouter
+    const routerAddress = config.contracts.pendle.pendleRouter
     const marketState = await client.readContract({
       address: marketAddress,
       abi: PENDLE_MARKET_ABI,
@@ -341,7 +341,7 @@ async function getUnderlyingTokenPrice(marketAddress: Address): Promise<number> 
 export async function getPendleIncentiveYield(marketAddress: Address): Promise<number> {
   try {
     // 1. Get information from the gauge controller
-    const gaugeControllerAddress = config.contracts.gaugeController;
+    const gaugeControllerAddress = config.contracts.pendle.gaugeController;
     
     // Get reward data
     const rewardData = await client.readContract({

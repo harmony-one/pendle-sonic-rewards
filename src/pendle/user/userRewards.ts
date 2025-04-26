@@ -1,5 +1,4 @@
 import { Address, formatUnits } from "viem";
-import { calculatePTFixedYieldOnChain } from "./pendlePTRewards";
 import { getUnclaimedRewards, getUserActiveBalance, getUserLPBalance } from "./userHelper";
 import { UnclaimedReward } from "../types";
 // Import any functions you need from pendleYTRewards as well

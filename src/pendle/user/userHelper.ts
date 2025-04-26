@@ -1,11 +1,11 @@
 import { Address, formatUnits } from "viem";
-import { client } from "../web3/client";
 import PENDLE_MARKET_ABI from '../web3/abis/PendleMarket.json';
 import REWARD_MANAGER_ABI from '../web3/abis/RewardManager.json'
 import { UnclaimedReward } from "../types";
 import { getMarketRewardTokens } from "../market/marketHelper";
-import { getTokenInfo } from "../web3/helper";
 import coinGeckoService from "../../common/api/coinGecko";
+import { client } from "../../common/web3/client";
+import { getTokenInfo } from "../../common/web3/helper";
 
 /**
  * Get reward data from userReward mapping for a specific token
