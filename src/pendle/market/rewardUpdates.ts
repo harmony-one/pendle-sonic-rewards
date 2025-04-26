@@ -1,6 +1,6 @@
 // rewardUpdates.ts - For getting reward rate updates
 import { Address, getAddress } from 'viem';
-import config from '../config';
+import config from '../../config';
 import { RewardUpdateInfo } from '../types';
 import { getGaugeController, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';

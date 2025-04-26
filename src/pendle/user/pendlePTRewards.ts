@@ -4,12 +4,11 @@ import { Address, formatUnits } from "viem";
 import ERC20_ABI from '../web3/abis/erc20.json';
 import PENDLE_MARKET_ABI from '../web3/abis/PendleMarket.json';
 import moment from "moment";
-import { client } from "../web3/client";
-import config from "../config";
 import fs from 'fs';
 import path from 'path';
 import { getMarketInfo } from "../market/marketHelper";
-import { getLPClaimableRewards, getUnclaimedRewards, getUserActiveBalance } from "./userHelper";
+import { client } from "../../common/web3/client";
+import config from "../../config";
 
 
 /**
@@ -374,7 +373,7 @@ async function main() {
     const purchaseDate = depositDate ? new Date(depositDate) : undefined;
     
     // Perform the calculation
-    const routerAddress = config.contracts.pendleRouter as Address;
+    const routerAddress = config.contracts.pendle.pendleRouter as Address;
     const result = await calculatePTFixedYieldOnChain(
       marketAddress,
       userAddress,

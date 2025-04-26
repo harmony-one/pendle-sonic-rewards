@@ -1,6 +1,6 @@
 // marketApyTracker.ts - For tracking complete market APY components
 import { Address, formatEther, getAddress } from 'viem';
-import config from '../config';
+import config from '../../config';
 import { getGaugeController, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';
 import * as fs from 'fs';
@@ -463,6 +463,7 @@ async function trackAPYChanges(marketAddress: Address, interval = 3600000) {
  * Main function
  */
 async function main() {
+  console.log('NOT WORKING - Keep using pendleLpPtYieldTracker')
   // Get command line arguments
   const args = process.argv.slice(2);
   const marketAddress = args[0] as Address;

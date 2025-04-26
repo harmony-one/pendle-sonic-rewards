@@ -6,71 +6,7 @@ import PENDLE_MARKET_ABI from './abis/PendleMarket.json'
 import GAUGE_CONTROLLER_ABI from './abis/GaugeController.json'
 
 import { getContract } from "viem";
-import config from "../config";
-import moment from "moment";
-
-// Cache for token and market information to reduce RPC calls
-const tokenCache = new Map<string, TokenInfo>();
-
-
-/**
- * Fetches token information from the blockchain
- */
-export async function getTokenInfo(address: Address): Promise<TokenInfo | null> {
-  // Check cache first
-  if (!address) {
-    return null
-  }
-  const cacheKey = address.toLowerCase();
-  if (tokenCache.has(cacheKey)) {
-    return tokenCache.get(cacheKey)!;
-  }
-
-  try {
-    // Fetch token details from contract
-    const [name, symbol, decimals] = await Promise.all([
-      client.readContract({
-        address,
-        abi: ERC20_ABI,
-        functionName: 'name',
-      }),
-      client.readContract({
-        address,
-        abi: ERC20_ABI,
-        functionName: 'symbol',
-      }),
-      client.readContract({
-        address,
-        abi: ERC20_ABI,
-        functionName: 'decimals',
-      }),
-    ]);
-
-    const tokenInfo: TokenInfo = {
-      address,
-      name: name as string,
-      symbol: symbol as string,
-      decimals: decimals as number,
-    };
-
-    // Cache the result
-    tokenCache.set(cacheKey, tokenInfo);
-    return tokenInfo;
-  } catch (error) {
-    console.error(`Failed to fetch token info for ${address}:`, error);
-    
-    // Return a placeholder on error
-    const fallbackInfo: TokenInfo = {
-      address,
-      name: 'Unknown Token',
-      symbol: 'UNKNOWN',
-      decimals: 18,
-    };
-    
-    tokenCache.set(cacheKey, fallbackInfo);
-    return fallbackInfo;
-  }
-}
+import config from "../../config";
 
 export async function calculatePtPriceFromMarketState(marketAddress: Address, routerAddress: Address) {
   try {
@@ -204,7 +140,7 @@ export async function getGaugeController() {
 
   // Create contract instance
   const gaugeController = getContract({
-    address: config.contracts.gaugeController as Address,
+    address: config.contracts.pendle.gaugeController as Address,
     abi: GAUGE_CONTROLLER_ABI,
     client: client
   });

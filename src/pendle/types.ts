@@ -98,12 +98,7 @@ export interface RewardRateInfo {
   pendlePrice?: number
 }
 
-export interface TokenInfo {
-  address: Address;
-  name: string;
-  symbol: string;
-  decimals: number;
-}
+
 
 export interface MarketInfo {
   address: Address;

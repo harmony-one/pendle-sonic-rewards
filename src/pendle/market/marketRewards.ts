@@ -1,6 +1,6 @@
 // marketRewards.ts - For getting claimed rewards
 import { Address, getAddress } from 'viem';
-import config from '../config';
+import config from '../../config';
 import { MarketRewardInfo } from '../types';
 import { getGaugeController, getTokenInfo } from '../web3/helper';
 import { formatTokenAmount } from '../web3/numberUtils';
