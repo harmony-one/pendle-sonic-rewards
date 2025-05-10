@@ -11,17 +11,21 @@
     "user:pt:rewards": "tsx src/pendle/user/pendlePTRewards.ts",
     "user:yt:rewards": "tsx src/pendle/user/pendleYTRewards.ts",
     "user:rewards": "tsx src/pendle/user/userRewards.ts",
-    "market:lp:tracker": "tsx src/pendle/market/pendleLpPtYieldTracker.ts", 
+    "market:lp:tracker": "tsx src/pendle/market/pendleLpPtYieldTracker.ts",
     "market:apy": "tsx src/pendle/market/marketApyTracker.ts",
     "market:claimed": "tsx src/pendle/market/marketRewards.ts",
     "market:updates": "tsx src/pendle/market/rewardUpdates.ts",
     "market:current": "tsx src/pendle/market/currentRewardRate.ts",
     "market:all": "tsx src/pendle/market/getAllRewardInfo.ts",
-    "aave:apr": "tsx src/aave/aaveApr.ts"
+    "aave:apr": "tsx src/aave/aaveApr.ts",
+    "aave:merit": "tsx src/aave/aaveMeritApr.ts",
+    "aave:claim": "tsx src/aave/merklAutoClaim.ts"
   },
   "dependencies": {
+    "@merkl/api": "^0.20.131",
     "@types/node": "^22.14.0",
     "decimal.js": "^10.5.0",
+    "dotenv": "^16.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
     "viem": "^2.25.0"
